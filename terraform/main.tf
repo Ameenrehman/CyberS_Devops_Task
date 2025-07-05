@@ -8,7 +8,7 @@
 
 } */
 
-# main.tf
+
 
 # Pin the AWS provider version for compatibility with modules
 terraform {
@@ -127,11 +127,7 @@ module "eks" {
 
   manage_aws_auth_configmap = true
   aws_auth_roles = [
-    /* {
-      rolearn  = module.eks.eks_managed_node_group_iam_role_arns["ascode-cluster-wg"]
-      username = "system:node:{{EC2PrivateDNSName}}"
-      groups   = ["system:bootstrappers", "system:nodes"]
-    }, */
+    
     {
       rolearn  = var.github_actions_runner_iam_role_arn # <--- CORRECTED THIS LINE
       username = "github-actions-runner" # <--- CORRECTED THIS LINE (static string)

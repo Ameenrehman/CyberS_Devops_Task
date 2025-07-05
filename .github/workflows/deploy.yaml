@@ -69,10 +69,9 @@ jobs:
         env:
           IMAGE_TAG: ${{ env.IMAGE_TAG }}
         run: |
-          IMAGE="${{ steps.login-ecr.outputs.registry }}/myecr-ameen:$IMAGE_TAG"
-          sed "s|__IMAGE__|$IMAGE|g" k8s/node-backend-deployment.yaml > k8s/node-backend-deployment-patched.yaml
-          
-      
+          echo "Final image: ${{ env.IMAGE_TAG }}"
+          sed "s|__IMAGE__|${{ env.IMAGE_TAG }}|g" k8s/node-backend-deployment.yaml > k8s/node-backend-deployment-patched.yaml
+                
       - name: Configure kubeconfig
         run: |
           aws eks update-kubeconfig --region us-east-1 --name ascode-cluster

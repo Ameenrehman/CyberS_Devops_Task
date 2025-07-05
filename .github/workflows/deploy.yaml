@@ -76,3 +76,23 @@ jobs:
           kubectl apply -f k8s/prometheus/prometheus-configmap.yaml
           kubectl apply -f k8s/prometheus/
           kubectl apply -f k8s/grafana/
+          
+      - name: Terraform Destroy on Failure
+        # This step will only run if any previous step in this job fails
+        if: failure()
+        run: |
+          echo "A previous step failed. Attempting to destroy Terraform resources..."
+          cd terraform
+          # Re-initialize Terraform backend, as the previous init might have failed or context changed
+          terraform init -backend-config="bucket=${{ secrets.TF_STATE_BUCKET }}" \
+                         -backend-config="key=tfstate/main.tfstate" \
+                         -backend-config="region=us-east-1"
+          # Attempt to destroy with auto-approve.
+          # WARNING: Use -auto-approve with extreme caution in production environments.
+          # Consider manual intervention or a separate, explicit destroy workflow.
+          terraform destroy -auto-approve
+        env:
+          # Ensure AWS credentials are available for this step too
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: us-east-1

@@ -65,7 +65,9 @@ module "vpc" {
   public_subnets   = local.public_subnets
   intra_subnets    = local.intra_subnets
 
-  enable_nat_gateway = true
+  enable_nat_gateway = false
+  single_nat_gateway = false # default
+  enable_dns_hostnames = true
 
   public_subnet_tags = {
     "kubernetes.io/role/elb" = 1
@@ -82,8 +84,8 @@ module "eks" {
 
   cluster_name                   = local.name
   cluster_endpoint_public_access = true
-
-  cluster_addons = {
+  
+  /* cluster_addons = {
     coredns = {
       most_recent = true
       # resolve_conflicts = "OVERWRITE" # <--- REMOVED THIS ARGUMENT
@@ -96,26 +98,27 @@ module "eks" {
       most_recent = true
       # resolve_conflicts = "OVERWRITE" # <--- REMOVED THIS ARGUMENT
     }
-  }
-
+  } */
+  
   vpc_id                   = module.vpc.vpc_id
-  subnet_ids               = module.vpc.private_subnets
+  subnet_ids               = module.vpc.public_subnets
   control_plane_subnet_ids = module.vpc.intra_subnets
 
   eks_managed_node_group_defaults = {
-    ami_type = "AL2_x86_64"
+    #ami_type = "AL2_x86_64"
     attach_cluster_primary_security_group = true
+    enable_cluster_encryption = false
   }
 
   eks_managed_node_groups = {
     ascode-cluster-wg = {
-      min_size     = 1
-      max_size     = 2
+      min_size     = 0
+      max_size     = 1
       desired_size = 1
 
       instance_types = ["t3.medium"]
       capacity_type  = "SPOT"
-
+      enable_cluster_encryption = false
       tags = {
         ExtraTag = "helloworld"
       }

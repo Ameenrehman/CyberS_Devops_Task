@@ -18,11 +18,6 @@ terraform {
       version = "~> 5.0" # Pin to a compatible major version
     }
   }
-  backend "s3" {
-    # These values will be overridden by -backend-config in CI/CD
-    region = "us-east-1"
-    key    = "tfstate/main.tfstate"
-  }
 }
 
 provider "aws" {

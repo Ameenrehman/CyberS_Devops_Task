@@ -64,7 +64,7 @@ module "vpc" {
   private_subnets  = local.private_subnets
   public_subnets   = local.public_subnets
   intra_subnets    = local.intra_subnets
-
+  map_public_ip_on_launch = true
   enable_nat_gateway = false
   single_nat_gateway = false # default
   enable_dns_hostnames = true

@@ -3,4 +3,3 @@ terraform\.terraform\
 *.tfstate.*
 .terraform.lock.hcl
 *terraform\.terraform
-*.github\workflows\deploy.yaml

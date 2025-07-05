@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: node-todo-app
-  namespace: ameen2607-dev
+  #namespace: ameen2607-dev
 spec:
   replicas: 1
   selector:

@@ -13,4 +13,4 @@ data:
       - job_name: 'node-backend'
         metrics_path: /metrics
         static_configs:
-          - targets: ['node-backend-service.ameen2607-dev.svc.cluster.local:80']
+          - targets: ['node-backend-service.default.svc.cluster.local:80']

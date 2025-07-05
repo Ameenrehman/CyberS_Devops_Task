@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: node-todo-app
+  namespace: ameen2607-dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: node-todo-app
+  template:
+    metadata:
+      labels:
+        app: node-todo-app
+    spec:
+      containers:
+      - name: node-todo-app
+        #image: 593793064016.dkr.ecr.eu-north-1.amazonaws.com/myecr-ameen:${{ github.sha }}
+        image: __IMAGE__
+        ports:
+        - containerPort: 3000

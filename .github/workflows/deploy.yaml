@@ -1,0 +1,78 @@
+name: Deploy to AWS EKS
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'terraform/**'
+      - 'node-backend-app1/**'
+      - 'k8s/**'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'latest'
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.5.0
+
+      - name: Terraform Init
+        run: |
+          cd terraform
+          terraform init -backend-config="bucket=${{ secrets.TF_STATE_BUCKET }}" \
+                        -backend-config="key=tfstate/main.tfstate" \
+                        -backend-config="region=us-east-1"
+
+      - name: Terraform Apply
+        run: |
+          cd terraform
+          terraform apply -auto-approve
+
+      - name: Configure kubeconfig
+        run: |
+          aws eks update-kubeconfig --region us-east-1 --name my-eks-cluster
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and Push Docker Image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: myecr-ameen1
+          IMAGE_TAG: node-app1-${{ github.sha }}
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./node-backend-app1
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          echo "IMAGE_TAG=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_ENV
+
+      - name: Update Kubernetes Manifests
+        run: |
+          sed -i "s|<IMAGE>|${{ env.IMAGE_TAG }}|g" k8s/node-backend-deployment.yaml
+
+      - name: Deploy to EKS
+        run: |
+          kubectl apply -f k8s/node-backend-deployment.yaml
+          kubectl apply -f k8s/node-backend-service.yaml
+          kubectl apply -f k8s/prometheus/prometheus-configmap.yaml
+          kubectl apply -f k8s/prometheus/
+          kubectl apply -f k8s/grafana/

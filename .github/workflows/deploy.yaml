@@ -66,8 +66,12 @@ jobs:
           echo "IMAGE_TAG=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_ENV
 
       - name: Update Kubernetes Manifests
+        env:
+          IMAGE_TAG: ${{ env.IMAGE_TAG }}
         run: |
-          sed -i "s|<IMAGE>|${{ env.IMAGE_TAG }}|g" k8s/node-backend-deployment.yaml
+          IMAGE="${{ steps.login-ecr.outputs.registry }}/myecr-ameen:$IMAGE_TAG"
+          sed "s|__IMAGE__|$IMAGE|g" k8s/node-backend-deployment.yaml > k8s/node-backend-deployment-patched.yaml
+          kubectl apply -f k8s/node-backend-deployment-patched.yaml
       
       - name: Configure kubeconfig
         run: |

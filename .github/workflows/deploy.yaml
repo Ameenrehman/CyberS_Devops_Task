@@ -54,7 +54,12 @@ jobs:
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
-
+      
+      - name: Create Namespace
+        run: |
+          kubectl create namespace ameen2607-dev --dry-run=client -o yaml | kubectl apply -f -
+        # The --dry-run=client -o yaml | kubectl apply -f - pattern ensures it's idempotent
+        # It will create the namespace if it doesn't exist, and do nothing if it does
       - name: Build and Push Docker Image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
@@ -76,7 +81,7 @@ jobs:
           kubectl apply -f k8s/prometheus/prometheus-configmap.yaml
           kubectl apply -f k8s/prometheus/
           kubectl apply -f k8s/grafana/
-          
+
       - name: Terraform Destroy on Failure
         # This step will only run if any previous step in this job fails
         if: failure()

@@ -1,6 +1,10 @@
 variable "vpc_id" {}
 variable "subnet_ids" {}
 variable "cluster_name" {}
+variable "github_actions_runner_iam_role_arn" { # <--- NEW VARIABLE
+  description = "ARN of the IAM role used by GitHub Actions for EKS access"
+  type        = string
+}
 
 # EKS Cluster IAM Role
 resource "aws_iam_role" "eks_cluster_role" {
@@ -76,7 +80,7 @@ resource "aws_eks_node_group" "eks_nodes" {
   node_group_name = "eks-node-group"
   node_role_arn   = aws_iam_role.eks_node_role.arn
   subnet_ids      = var.subnet_ids
-  
+
   instance_types = ["t3.medium"]
   scaling_config {
     desired_size = 1
@@ -89,6 +93,24 @@ resource "aws_eks_node_group" "eks_nodes" {
     aws_iam_role_policy_attachment.ecr_read_policy,
     aws_iam_role_policy_attachment.cni_policy
   ]
+}
+
+# --- NEW RESOURCE: aws_auth ConfigMap for EKS access ---
+resource "aws_eks_auth" "github_actions_access" {
+  cluster_name = aws_eks_cluster.eks.name
+  depends_on   = [aws_eks_cluster.eks] # Ensure cluster is active before modifying auth
+
+  map_roles {
+    rolearn  = aws_iam_role.eks_node_role.arn # Map the node group role
+    username = "system:node:{{EC2PrivateDNSName}}"
+    groups   = ["system:bootstrappers", "system:nodes"]
+  }
+
+  map_roles {
+    rolearn  = var.github_actions_runner_iam_role_arn # Map your GitHub Actions runner role
+    username = "github-actions-runner" # A friendly name for the user in Kubernetes
+    groups   = ["system:masters"]      # Grant cluster-admin permissions
+  }
 }
 
 output "cluster_endpoint" {

@@ -58,7 +58,6 @@ jobs:
       - name: Create Namespace
         run: |
           kubectl create namespace ameen2607-dev --dry-run=client -o yaml | kubectl apply -f -
-        # The --dry-run=client -o yaml | kubectl apply -f - pattern ensures it's idempotent
         # It will create the namespace if it doesn't exist, and do nothing if it does
       - name: Build and Push Docker Image
         env:

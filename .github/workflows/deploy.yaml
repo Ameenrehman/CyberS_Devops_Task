@@ -111,7 +111,7 @@ jobs:
           # Attempt to destroy with auto-approve.
           # WARNING: Use -auto-approve with extreme caution in production environments.
           # Consider manual intervention or a separate, explicit destroy workflow.
-          terraform destroy -auto-approve
+         #terraform destroy -auto-approve
         env:
           # Ensure AWS credentials are available for this step too
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}

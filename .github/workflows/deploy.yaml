@@ -70,7 +70,7 @@ jobs:
           IMAGE_TAG: ${{ env.IMAGE_TAG }}
         run: |
           echo "Final image: ${{ env.IMAGE_TAG }}"
-          sed -i "s|593793064016.dkr.ecr.us-east-1.amazonaws.com/myecr-ameen1@sha256:4240419aa95be71ad66633e17296e6002f938de29ee973031c8162c62c85e857|593793064016.dkr.ecr.us-east-1.amazonaws.com/myecr-ameen1:node-app1-${{ github.sha }}|g" k8s/node-backend-deployment.yaml > k8s/node-backend-deployment-patched.yaml
+          sed "s|593793064016.dkr.ecr.us-east-1.amazonaws.com/myecr-ameen1@sha256:4240419aa95be71ad66633e17296e6002f938de29ee973031c8162c62c85e857|593793064016.dkr.ecr.us-east-1.amazonaws.com/myecr-ameen1:node-app1-${{ github.sha }}|g" k8s/node-backend-deployment.yaml > k8s/node-backend-deployment-patched.yaml
       
       - name: Configure kubeconfig
         run: |

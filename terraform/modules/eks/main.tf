@@ -96,21 +96,13 @@ resource "aws_eks_node_group" "eks_nodes" {
 }
 
 # --- NEW RESOURCE: aws_auth ConfigMap for EKS access ---
-resource "aws_eks_auth" "github_actions_access" {
-  cluster_name = aws_eks_cluster.eks.name
-  depends_on   = [aws_eks_cluster.eks] # Ensure cluster is active before modifying auth
+resource "aws_eks_access_entry" "github_actions_access" {
+  cluster_name      = aws_eks_cluster.eks.name
+  principal_arn     = var.github_actions_runner_iam_role_arn
+  kubernetes_groups = ["system:masters"] # Grants cluster-admin permissions
 
-  map_roles {
-    rolearn  = aws_iam_role.eks_node_role.arn # Map the node group role
-    username = "system:node:{{EC2PrivateDNSName}}"
-    groups   = ["system:bootstrappers", "system:nodes"]
-  }
-
-  map_roles {
-    rolearn  = var.github_actions_runner_iam_role_arn # Map your GitHub Actions runner role
-    username = "github-actions-runner" # A friendly name for the user in Kubernetes
-    groups   = ["system:masters"]      # Grant cluster-admin permissions
-  }
+  # Ensure this resource is created after the EKS cluster is active
+  depends_on = [aws_eks_cluster.eks]
 }
 
 output "cluster_endpoint" {

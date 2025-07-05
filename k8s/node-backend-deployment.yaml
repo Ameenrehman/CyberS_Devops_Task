@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: node-todo-app
-        #image: 593793064016.dkr.ecr.eu-north-1.amazonaws.com/myecr-ameen:${{ github.sha }}
-        image: __IMAGE__
+        image: 593793064016.dkr.ecr.us-east-1.amazonaws.com/myecr-ameen1@sha256:4240419aa95be71ad66633e17296e6002f938de29ee973031c8162c62c85e857
+        #image: __IMAGE__
         ports:
         - containerPort: 3000

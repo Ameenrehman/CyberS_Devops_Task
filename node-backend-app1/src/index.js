@@ -63,7 +63,9 @@ app.use((req, res, next) => {
     next(); // Continue to the next middleware or route handler
 });
 
-
+app.get('/health', (req, res) => {
+    res.status(200).send('OK');
+});
 app.use(express.json());
 app.use(express.static(__dirname + '/static'));
 

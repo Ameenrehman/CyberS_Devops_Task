@@ -115,9 +115,9 @@ jobs:
             --set region=us-east-1 \
             --set vpcId=${{ env.VPC_ID }} \
             --set image.repository=602401143452.dkr.ecr.us-west-2.amazonaws.com/amazon/aws-load-balancer-controller
-            
+
       - name: Destroy K8s Manifests on Failure
-        if: failure()
+        if: failure()   
         run: |
           echo "A previous step failed. Attempting to destroy Kubernetes resources..."
           cd k8s 
@@ -142,7 +142,7 @@ jobs:
           # Attempt to destroy with auto-approve.
           # WARNING: Use -auto-approve with extreme caution in production environments.
           # Consider manual intervention or a separate, explicit destroy workflow.
-         #terraform destroy -auto-approve
+          terraform destroy -auto-approve
         env:
           # Ensure AWS credentials are available for this step too
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}

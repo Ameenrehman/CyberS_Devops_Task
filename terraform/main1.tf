@@ -1,10 +1,9 @@
 
-# Pin the AWS provider version for compatibility with modules
 terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 5.0" # Pin to a compatible major version
+      version = "~> 5.0" 
     }
   }
 }
@@ -13,9 +12,7 @@ provider "aws" {
   region = local.region
 }
 
-# Configure the Kubernetes provider to connect to the EKS cluster
-# This uses outputs from the EKS module to get the cluster endpoint and CA certificate.
-# It also uses the aws_eks_cluster_auth data source to get a temporary authentication token.
+
 data "aws_eks_cluster_auth" "main" {
   name = module.eks.cluster_name
 }
@@ -104,8 +101,8 @@ module "eks" {
   aws_auth_roles = [
     
     {
-      rolearn  = var.github_actions_runner_iam_role_arn # <--- CORRECTED THIS LINE
-      username = "github-actions-runner" # <--- CORRECTED THIS LINE (static string)
+      rolearn  = var.github_actions_runner_iam_role_arn 
+      username = "github-actions-runner" 
       groups   = ["system:masters"]
     }
   ]

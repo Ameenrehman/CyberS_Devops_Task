@@ -1,15 +1,4 @@
 
-/* module "eks" {
-  source       = "./modules/eks"
-  vpc_id       = module.vpc.vpc_id
-  subnet_ids   = module.vpc.subnet_ids
-  cluster_name = var.cluster_name
-  github_actions_runner_iam_role_arn = "arn:aws:iam::593793064016:user/Ammen"
-
-} */
-
-
-
 # Pin the AWS provider version for compatibility with modules
 terraform {
   required_providers {
@@ -85,20 +74,6 @@ module "eks" {
   cluster_name                   = local.name
   cluster_endpoint_public_access = true
   cluster_version                = "1.33"
-  /* cluster_addons = {
-    coredns = {
-      most_recent = true
-      # resolve_conflicts = "OVERWRITE" # <--- REMOVED THIS ARGUMENT
-    }
-    kube-proxy = {
-      most_recent = true
-      # resolve_conflicts = "OVERWRITE" # <--- REMOVED THIS ARGUMENT
-    }
-    vpc-cni = {
-      most_recent = true
-      # resolve_conflicts = "OVERWRITE" # <--- REMOVED THIS ARGUMENT
-    }
-  } */
   
   vpc_id                   = module.vpc.vpc_id
   subnet_ids               = module.vpc.public_subnets

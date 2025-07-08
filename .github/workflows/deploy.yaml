@@ -92,8 +92,10 @@ jobs:
         run: helm repo add eks https://aws.github.io/eks-charts
 
       - name: Update Helm Repos
-        run: helm repo update eks
-
+        run: |
+          helm repo add eks https://aws.github.io/eks-charts
+          helm repo update eks
+      
       - name: Deploy to EKS
         run: |
           kubectl apply -f k8s/node-backend-deployment-patched.yaml
@@ -103,6 +105,17 @@ jobs:
         #  kubectl apply -f k8s/prometheus/
         #  kubectl apply -f k8s/grafana/
       
+      - name: deploy eks alb via helm
+        run: |
+          helm upgrade --install aws-load-balancer-controller eks/aws-load-balancer-controller \
+            --set clusterName=ascode-cluster \
+            --set serviceAccount.create=false \
+            --set serviceAccount.name=aws-load-balancer-controller \
+            --namespace kube-system \
+            --set region=us-east-1 \
+            --set vpcId=${{ env.VPC_ID }} \
+            --set image.repository=602401143452.dkr.ecr.us-west-2.amazonaws.com/amazon/aws-load-balancer-controller
+            
       - name: Destroy K8s Manifests on Failure
         if: failure()
         run: |
